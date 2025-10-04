@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Cetak Kartu NISN dan NRG</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            .card-container {
+                page-break-inside: avoid;
+                margin: 5mm;
+                width: 85.6mm;
+                height: 53.98mm;
+            }
+            .id-card {
+                width: 85.6mm !important;
+                height: 53.98mm !important;
+                max-width: none !important;
+                font-size: 8px !important;
+            }
+            .card-photo {
+                width: 15mm !important;
+                height: 20mm !important;
+            }
+        }
+        
+        .id-card {
+            width: 320px;
+            height: 202px;
+            font-size: 11px;
+        }
+        
+        .card-photo {
+            width: 56px;
+            height: 75px;
+        }
+        
+        .card-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .nrg-gradient {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .card-shadow {
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Sistem Cetak Kartu NISN & NRG</h1>
+            <p class="text-gray-600">Masukkan data siswa untuk mencetak kartu identitas</p>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-8">
+            <!-- Form Input -->
+            <div class="no-print">
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-6">Data Siswa</h2>
+                    
+                    <form id="studentForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
+                            <input type="text" id="fullName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Masukkan nama lengkap" required>
+                        </div>
+
+                        <!-- Pilihan Jenis Kartu -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-3">Pilih Jenis Kartu yang Akan Dicetak</label>
+                            <div class="grid grid-cols-3 gap-3">
+                                <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors">
+                                    <input type="radio" name="cardType" value="nisn" class="mr-2 text-blue-600">
+                                    <span class="text-sm font-medium">NISN Saja</span>
+                                </label>
+                                <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-pink-50 transition-colors">
+                                    <input type="radio" name="cardType" value="nrg" class="mr-2 text-pink-600">
+                                    <span class="text-sm font-medium">NRG Saja</span>
+                                </label>
+                                <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-green-50 transition-colors">
+                                    <input type="radio" name="cardType" value="both" class="mr-2 text-green-600" checked>
+                                    <span class="text-sm font-medium">Keduanya</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div id="nisnField">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">NISN</label>
+                                <input type="text" id="nisn" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="10 digit NISN" maxlength="10">
+                            </div>
+                            <div id="nrgField">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">NRG</label>
+                                <input type="text" id="nrg" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent" placeholder="Nomor Registrasi Guru">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Tempat Lahir</label>
+                                <input type="text" id="birthPlace" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Kota kelahiran" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Lahir</label>
+                                <input type="date" id="birthDate" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nama Sekolah</label>
+                            <input type="text" id="schoolName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Nama sekolah lengkap" required>
+                        </div>
+
+                        <div id="photoField">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Foto untuk Kartu NRG</label>
+                            <div class="flex items-center space-x-4">
+                                <input type="file" id="photoUpload" accept="image/*" class="hidden">
+                                <button type="button" id="uploadBtn" class="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg text-sm transition duration-200">
+                                    📷 Upload Foto
+                                </button>
+                                <span id="photoStatus" class="text-sm text-gray-500">Belum ada foto</span>
+                            </div>
+                            <div class="mt-2">
+                                <img id="photoPreview" class="hidden w-16 h-20 object-cover rounded border" alt="Preview foto">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Kelas</label>
+                                <select id="grade" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                                    <option value="">Pilih Kelas</option>
+                                    <option value="VII">VII</option>
+                                    <option value="VIII">VIII</option>
+                                    <option value="IX">IX</option>
+                                    <option value="X">X</option>
+                                    <option value="XI">XI</option>
+                                    <option value="XII">XII</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Kelamin</label>
+                                <select id="gender" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                                    <option value="">Pilih</option>
+                                    <option value="Laki-laki">Laki-laki</option>
+                                    <option value="Perempuan">Perempuan</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="pt-4">
+                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 transform hover:scale-105">
+                                Generate Kartu
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Print Button -->
+                <div class="mt-6 text-center">
+                    <button id="printBtn" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-8 rounded-lg transition duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        🖨️ Cetak Kartu
+                    </button>
+                </div>
+            </div>
+
+            <!-- Preview Kartu -->
+            <div class="space-y-6">
+                <!-- Kartu NISN -->
+                <div id="nisnCardContainer" class="card-container">
+                    <div id="nisnCard" class="id-card mx-auto bg-white rounded-lg card-shadow overflow-hidden">
+                        <!-- Header -->
+                        <div class="card-gradient text-white px-3 py-2">
+                            <div class="flex items-center justify-between">
+                                <!-- Logo Donggala -->
+                                <div class="flex-shrink-0">
+                                    <svg width="24" height="24" viewBox="0 0 100 100" class="text-white">
+                                        <circle cx="50" cy="50" r="45" fill="currentColor" stroke="white" stroke-width="2"/>
+                                        <circle cx="50" cy="35" r="12" fill="white"/>
+                                        <path d="M30 65 Q50 45 70 65 Q50 85 30 65" fill="white"/>
+                                        <text x="50" y="75" text-anchor="middle" font-size="8" fill="currentColor" font-weight="bold">DONGGALA</text>
+                                    </svg>
+                                </div>
+                                
+                                <!-- Text -->
+                                <div class="text-center flex-1">
+                                    <div class="text-xs font-medium">KEMENTERIAN PENDIDIKAN</div>
+                                    <div class="font-bold text-sm">KARTU NISN</div>
+                                </div>
+                                
+                                <!-- Logo Tut Wuri Handayani -->
+                                <div class="flex-shrink-0">
+                                    <svg width="24" height="24" viewBox="0 0 100 100" class="text-white">
+                                        <circle cx="50" cy="50" r="45" fill="currentColor" stroke="white" stroke-width="2"/>
+                                        <!-- Flame/Api -->
+                                        <path d="M50 20 Q40 30 45 40 Q35 45 40 55 Q30 60 35 70 Q50 65 65 70 Q70 60 60 55 Q65 45 55 40 Q60 30 50 20" fill="white"/>
+                                        <!-- Base -->
+                                        <rect x="35" y="70" width="30" height="8" fill="white" rx="2"/>
+                                        <text x="50" y="88" text-anchor="middle" font-size="6" fill="white" font-weight="bold">TUT WURI</text>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Content -->
+                        <div class="flex p-3 h-full">
+                            <!-- Photo -->
+                            <div class="flex-shrink-0 mr-3">
+                                <div class="card-photo bg-gray-200 rounded flex items-center justify-center">
+                                    <span class="text-lg">👤</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Info -->
+                            <div class="flex-1 space-y-1">
+                                <div>
+                                    <div class="text-xs text-gray-600">Nama</div>
+                                    <div id="nisnName" class="font-semibold text-gray-800 text-sm">-</div>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-gray-600">NISN</div>
+                                    <div id="nisnNumber" class="font-bold text-blue-600">-</div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <div class="text-xs text-gray-600">TTL</div>
+                                        <div id="nisnBirth" class="text-xs text-gray-800">-</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs text-gray-600">Kelas</div>
+                                        <div id="nisnGrade" class="text-xs text-gray-800">-</div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-gray-600">Sekolah</div>
+                                    <div id="nisnSchool" class="text-xs text-gray-800">-</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Footer -->
+                        <div class="bg-gray-50 px-3 py-1 text-center">
+                            <div class="text-xs text-gray-500">Berlaku selama menjadi siswa</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kartu NRG -->
+                <div id="nrgCardContainer" class="card-container">
+                    <div id="nrgCard" class="id-card mx-auto bg-white rounded-lg card-shadow overflow-hidden">
+                        <!-- Header -->
+                        <div class="nrg-gradient text-white px-3 py-2">
+                            <div class="flex items-center justify-between">
+                                <!-- Logo Donggala -->
+                                <div class="flex-shrink-0">
+                                    <svg width="24" height="24" viewBox="0 0 100 100" class="text-white">
+                                        <circle cx="50" cy="50" r="45" fill="currentColor" stroke="white" stroke-width="2"/>
+                                        <circle cx="50" cy="35" r="12" fill="white"/>
+                                        <path d="M30 65 Q50 45 70 65 Q50 85 30 65" fill="white"/>
+                                        <text x="50" y="75" text-anchor="middle" font-size="8" fill="currentColor" font-weight="bold">DONGGALA</text>
+                                    </svg>
+                                </div>
+                                
+                                <!-- Text -->
+                                <div class="text-center flex-1">
+                                    <div class="text-xs font-medium">KEMENTERIAN PENDIDIKAN</div>
+                                    <div class="font-bold text-sm">KARTU NRG</div>
+                                </div>
+                                
+                                <!-- Logo Tut Wuri Handayani -->
+                                <div class="flex-shrink-0">
+                                    <svg width="24" height="24" viewBox="0 0 100 100" class="text-white">
+                                        <circle cx="50" cy="50" r="45" fill="currentColor" stroke="white" stroke-width="2"/>
+                                        <!-- Flame/Api -->
+                                        <path d="M50 20 Q40 30 45 40 Q35 45 40 55 Q30 60 35 70 Q50 65 65 70 Q70 60 60 55 Q65 45 55 40 Q60 30 50 20" fill="white"/>
+                                        <!-- Base -->
+                                        <rect x="35" y="70" width="30" height="8" fill="white" rx="2"/>
+                                        <text x="50" y="88" text-anchor="middle" font-size="6" fill="white" font-weight="bold">TUT WURI</text>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Content -->
+                        <div class="flex p-3 h-full">
+                            <!-- Photo -->
+                            <div class="flex-shrink-0 mr-3">
+                                <div id="nrgPhotoContainer" class="card-photo bg-gray-200 rounded flex items-center justify-center overflow-hidden">
+                                    <span id="nrgPhotoPlaceholder" class="text-lg">👤</span>
+                                    <img id="nrgPhoto" class="hidden w-full h-full object-cover" alt="Foto NRG">
+                                </div>
+                            </div>
+                            
+                            <!-- Info -->
+                            <div class="flex-1 space-y-1">
+                                <div>
+                                    <div class="text-xs text-gray-600">Nama</div>
+                                    <div id="nrgName" class="font-semibold text-gray-800 text-sm">-</div>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-gray-600">NRG</div>
+                                    <div id="nrgNumber" class="font-bold text-pink-600">-</div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <div class="text-xs text-gray-600">TTL</div>
+                                        <div id="nrgBirth" class="text-xs text-gray-800">-</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs text-gray-600">Gender</div>
+                                        <div id="nrgGender" class="text-xs text-gray-800">-</div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-gray-600">Instansi</div>
+                                    <div id="nrgSchool" class="text-xs text-gray-800">-</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Footer -->
+                        <div class="bg-gray-50 px-3 py-1 text-center">
+                            <div class="text-xs text-gray-500">Berlaku sesuai ketentuan</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('studentForm');
+        const printBtn = document.getElementById('printBtn');
+
+        // Format tanggal Indonesia
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const months = [
+                'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+            ];
+            
+            const day = date.getDate();
+            const month = months[date.getMonth()];
+            const year = date.getFullYear();
+            
+            return `${day} ${month} ${year}`;
+        }
+
+        // Update kartu dengan data form
+        function updateCards() {
+            const formData = {
+                fullName: document.getElementById('fullName').value,
+                nisn: document.getElementById('nisn').value,
+                nrg: document.getElementById('nrg').value,
+                birthPlace: document.getElementById('birthPlace').value,
+                birthDate: document.getElementById('birthDate').value,
+                schoolName: document.getElementById('schoolName').value,
+                grade: document.getElementById('grade').value,
+                gender: document.getElementById('gender').value
+            };
+
+            // Format tempat, tanggal lahir
+            const birthInfo = formData.birthPlace && formData.birthDate 
+                ? `${formData.birthPlace}, ${formatDate(formData.birthDate)}`
+                : '-';
+
+            // Update NISN Card
+            document.getElementById('nisnName').textContent = formData.fullName || '-';
+            document.getElementById('nisnNumber').textContent = formData.nisn || '-';
+            document.getElementById('nisnBirth').textContent = birthInfo;
+            document.getElementById('nisnGrade').textContent = formData.grade || '-';
+            document.getElementById('nisnSchool').textContent = formData.schoolName || '-';
+
+            // Update NRG Card
+            document.getElementById('nrgName').textContent = formData.fullName || '-';
+            document.getElementById('nrgNumber').textContent = formData.nrg || '-';
+            document.getElementById('nrgBirth').textContent = birthInfo;
+            document.getElementById('nrgGender').textContent = formData.gender || '-';
+            document.getElementById('nrgSchool').textContent = formData.schoolName || '-';
+        }
+
+        // Handle card type selection
+        function handleCardTypeChange() {
+            const cardType = document.querySelector('input[name="cardType"]:checked').value;
+            const nisnField = document.getElementById('nisnField');
+            const nrgField = document.getElementById('nrgField');
+            const photoField = document.getElementById('photoField');
+            const nisnCardContainer = document.getElementById('nisnCardContainer');
+            const nrgCardContainer = document.getElementById('nrgCardContainer');
+            const nisnInput = document.getElementById('nisn');
+            const nrgInput = document.getElementById('nrg');
+
+            // Reset required attributes
+            nisnInput.removeAttribute('required');
+            nrgInput.removeAttribute('required');
+
+            if (cardType === 'nisn') {
+                // Show NISN only
+                nisnField.style.display = 'block';
+                nrgField.style.display = 'none';
+                photoField.style.display = 'none';
+                nisnCardContainer.style.display = 'block';
+                nrgCardContainer.style.display = 'none';
+                nisnInput.setAttribute('required', 'required');
+            } else if (cardType === 'nrg') {
+                // Show NRG only
+                nisnField.style.display = 'none';
+                nrgField.style.display = 'block';
+                photoField.style.display = 'block';
+                nisnCardContainer.style.display = 'none';
+                nrgCardContainer.style.display = 'block';
+                nrgInput.setAttribute('required', 'required');
+            } else {
+                // Show both
+                nisnField.style.display = 'block';
+                nrgField.style.display = 'block';
+                photoField.style.display = 'block';
+                nisnCardContainer.style.display = 'block';
+                nrgCardContainer.style.display = 'block';
+                nisnInput.setAttribute('required', 'required');
+                nrgInput.setAttribute('required', 'required');
+            }
+        }
+
+        // Handle form submission
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            updateCards();
+            printBtn.disabled = false;
+            
+            // Scroll ke preview kartu
+            const firstVisibleCard = document.querySelector('.card-container[style*="display: block"], .card-container:not([style*="display: none"])');
+            if (firstVisibleCard) {
+                firstVisibleCard.scrollIntoView({ 
+                    behavior: 'smooth' 
+                });
+            }
+        });
+
+        // Handle input changes untuk live preview
+        form.addEventListener('input', function() {
+            updateCards();
+        });
+
+        // Handle print
+        printBtn.addEventListener('click', function() {
+            window.print();
+        });
+
+        // Format NISN input (hanya angka)
+        document.getElementById('nisn').addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/\D/g, '');
+        });
+
+        // Handle photo upload
+        const photoUpload = document.getElementById('photoUpload');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const photoStatus = document.getElementById('photoStatus');
+        const photoPreview = document.getElementById('photoPreview');
+        const nrgPhoto = document.getElementById('nrgPhoto');
+        const nrgPhotoPlaceholder = document.getElementById('nrgPhotoPlaceholder');
+
+        uploadBtn.addEventListener('click', function() {
+            photoUpload.click();
+        });
+
+        photoUpload.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imageUrl = e.target.result;
+                    
+                    // Update preview
+                    photoPreview.src = imageUrl;
+                    photoPreview.classList.remove('hidden');
+                    
+                    // Update NRG card photo
+                    nrgPhoto.src = imageUrl;
+                    nrgPhoto.classList.remove('hidden');
+                    nrgPhotoPlaceholder.classList.add('hidden');
+                    
+                    // Update status
+                    photoStatus.textContent = file.name;
+                    photoStatus.classList.remove('text-gray-500');
+                    photoStatus.classList.add('text-green-600');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Add event listeners for card type selection
+        document.querySelectorAll('input[name="cardType"]').forEach(radio => {
+            radio.addEventListener('change', handleCardTypeChange);
+        });
+
+        // Initialize card type on page load
+        handleCardTypeChange();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98954146f1a29daa',t:'MTc1OTU4Njk0NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
